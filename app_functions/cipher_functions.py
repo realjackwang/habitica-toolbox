@@ -8,11 +8,16 @@ from __future__ import absolute_import
 __author__ = "Katie Patterson kirska.com"
 __license__ = "MIT"
 
+import os.path
+
 from cryptography.fernet import Fernet
 
-from app import app
+from config import ProdConfig, DevConfig
 
-CIPHER_FILE = app.config['CIPHER_FILE']
+if 'ENV' in os.environ and os.getenv('ENV') == 'prod':
+    CIPHER_FILE = ProdConfig.CIPHER_FILE
+else:
+    CIPHER_FILE = DevConfig.CIPHER_FILE
 
 
 def generate_cipher_key():
@@ -77,6 +82,16 @@ def test_cipher(test_text):
     print(cipher_text)
     plain_text = decrypt_text(cipher_text)
     print(plain_text)
+
+
+def init_cipher_key():
+    """Init the cipher key
+
+    If cipher key has not created, then create a new one.
+
+    """
+    if not os.path.exists(CIPHER_FILE):
+        generate_cipher_key()
 
 
 if __name__ == '__main__':

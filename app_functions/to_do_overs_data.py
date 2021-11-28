@@ -178,26 +178,27 @@ class ToDoOversData(object):
                 return True
             return False
 
-    def edit_task(self):
+    def edit_task(self, user_id, api_token, task_id, task_name, notes, task_days, priority, tags,
+                  cipher_file_path=CIPHER_FILE):
         """Edit a task on Habitica.
 
         Returns:
             True for success, False for failure.
         """
-        headers = {'x-api-user': self.hab_user_id,
-                   'x-api-key': decrypt_text(self.api_token)}
-        url = 'https://habitica.com/api/v3/tasks/' + str(self.task_id)
+        headers = {'x-api-user': user_id,
+                   'x-api-key': decrypt_text(api_token)}
+        url = 'https://habitica.com/api/v3/tasks/' + str(task_id)
 
-        if int(self.task_days) > 0:
-            due_date = datetime.now() + timedelta(days=int(self.task_days))
+        if int(task_days) > 0:
+            due_date = datetime.now() + timedelta(days=int(task_days))
             due_date = due_date.isoformat()
 
             req = requests.put(url, headers=headers, data={
-                'text': self.task_name,
-                'notes': self.notes,
+                'text': task_name,
+                'notes': notes,
                 'date': due_date,
-                'priority': self.priority,
-                'tags': self.tags,
+                'priority': priority,
+                'tags': tags,
             })
             self.return_code = req.status_code
             if req.status_code == 200:
@@ -207,10 +208,10 @@ class ToDoOversData(object):
             return False
         else:
             req = requests.put(url, headers=headers, data={
-                'text': self.task_name,
-                'notes': self.notes,
-                'priority': self.priority,
-                'tags': self.tags,
+                'text': task_name,
+                'notes': notes,
+                'priority': priority,
+                'tags': tags,
             })
             self.return_code = req.status_code
             if req.status_code == 200:

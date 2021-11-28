@@ -1,9 +1,9 @@
 import os
 
-from flask_admin.helpers import is_safe_url
-
+import pyotp
 from flask_babel import Babel, gettext as _
 from flask_admin import Admin
+from flask_admin.helpers import is_safe_url
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
 from flask_bootstrap import Bootstrap
 from flask import Flask, render_template, request, redirect, url_for, flash, abort
@@ -13,7 +13,7 @@ from models import User, Task, Tag, Changelog, Notice
 from config import DevConfig, ProdConfig
 from forms import Login, TasksModelForm
 from app_functions import scheduled_script
-from app_functions.cipher_functions import encrypt_text
+from app_functions.cipher_functions import encrypt_text, init_cipher_key
 from app_functions.to_do_overs_data import ToDoOversData
 from views import MyView, MyAdminIndexView
 
@@ -43,6 +43,8 @@ admin.add_view(MyView(Notice, db.session))
 bootstrap = Bootstrap(app)
 
 babel = Babel(app)
+
+init_cipher_key()
 
 
 @app.route('/')
@@ -267,18 +269,18 @@ def language():
 @app.route('/set_role', methods=['GET'])
 @login_required
 def set_role():
-    if request.args.get('key') == app.config['ADMIN_KEY']:
-        if request.args.get('role') in User.ROLES:
-            current_user.role = request.args.get('role')
-            db.session.commit()
-            flash('用户角色成功修改为' + request.args.get('role'))
-            return redirect(url_for("dashboard"))
-        else:
-            flash('用户角色参数错误')
-            return redirect(url_for("dashboard"))
-    else:
-        flash(_('输入了错误的网址，或者你没有权限访问'))
-        return redirect(url_for("index"))
+    if app.config['ADMIN_KEY']:
+        if request.args.get('key') == app.config['ADMIN_KEY']:
+            if request.args.get('role') in User.ROLES:
+                current_user.role = request.args.get('role')
+                db.session.commit()
+                flash('用户角色成功修改为' + request.args.get('role'))
+                return redirect(url_for("dashboard"))
+            else:
+                flash('用户角色参数错误')
+                return redirect(url_for("dashboard"))
+    flash(_('输入了错误的网址，或者你没有权限访问'))
+    return redirect(url_for("index"))
 
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -292,20 +294,24 @@ def logout():
 @app.route('/scheduled', methods=['GET'])
 @login_required
 def scheduled():
-    if request.args.get('key') == app.config['SCHEDULED_KEY']:
-        scheduled_script.run()
-        return 'Success!'
-    else:
-        abort(401)
+    if app.config['SCHEDULED_KEY']:
+        if request.args.get('key') == app.config['SCHEDULED_KEY']:
+            scheduled_script.run()
+            return 'Success!'
+    abort(401)
 
 
 @app.route('/reset_database', methods=['GET'])
 def reset_database():
-    if request.args.get('key') == app.config['ADMIN_KEY']:
-        os.remove(app.config['SQLALCHEMY_DATABASE_PATH'])
-        return 'Success!'
-    else:
-        abort(401)
+    """仅限开发阶段使用，请不要在发布阶段开启这样的危险命令
+    """
+    if app.config['ADMIN_KEY']:
+        if request.args.get('key') == app.config['ADMIN_KEY']:
+            if request.args.get('totp') == pyotp.TOTP(app.config['TOTP_SECRET']).now():
+                os.remove(app.config['SQLALCHEMY_DATABASE_PATH'])
+                db.create_all()
+                return 'Success!'
+    abort(401)
 
 
 # 函数功能，传入当前url 跳转回当前url的前一个url
