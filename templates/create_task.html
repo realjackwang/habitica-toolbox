@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <title>{{ _("新建定期任务 - Habitica 工具集") }}</title>
+{% endblock %}
+
+{% block content %}
+    {% from 'bootstrap/form.html' import render_form,render_form_row,render_hidden_errors %}
+    <p class="h1 text-center">{{ _("新建定期任务") }}</p>
+
+    {{ render_hidden_errors(form) }}
+
+    <form method="post">
+        {{ form.csrf_token() }}
+        {{ render_form_row([form.name]) }}
+        {{ render_form_row([form.notes]) }}
+        {{ render_form_row([form.checklist]) }}
+        {{ render_form_row([form.priority]) }}
+        {{ render_form_row([form.days]) }}
+        {{ render_form_row([form.delay]) }}
+        {% if form.tags.choices %}
+            {{ form.tags.label }}
+            {{ form.tags }}
+        {% endif %}
+        <div class="mx-auto text-center">
+            <a href=" {{ url_for("dashboard") }}" class="btn btn-dark" role="button">{{ _("取消") }}</a>
+            {{ form.submit(class="btn btn-primary" ,role="button") }}
+        </div>
+    </form>
+    <br/><br/>
+    <div>
+        <label>{{ _("提示：") }}</label><br/>
+        1. 当你完成任务后，该任务将在第二天0点（GMT+8）自动重新创建。<br/>
+        2. 您可以给任务分配一个完成的天数，这会给你的任务在 Habitica 中指定一个截止日期。
+        （当输入“0”时，没有截止日期。）<br/>
+        3. 您的任务的截止日期将是今天加你所上指定的天数。<br/>
+        4. 您还可以通过输入“延迟天数”来在完成任务的n天后重新创建任务。
+        （当输入延迟为“0”时，将在完成任务后的第二天重新创建任务。）<br/>
+        5. 当你在 Habitica 中手动删除了该任务，该任务也会从To-Do Overs服务器中删除（每日0点GMT+8刷新）
+        <br/><br/><br/>
+    </div>
+
+{% endblock %}
+
+
+

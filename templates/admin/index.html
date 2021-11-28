@@ -1,0 +1,21 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+{#    {{ bootstrap.load_css() }}#}
+    <div class="alert alert-light" role="alert">
+        欢迎来到管理员面板！{{ current_user.username }}
+    </div>
+    <p>
+        <button type="button" class="btn btn-primary">运行定时任务</button>
+        <button type="button" class="btn btn-success">导出数据库备份</button>
+    </p>
+    <p>
+        <button type="button" class="btn btn-danger" data-toggle="tooltip" data-placement="top" title="警告，此操作非常危险">
+            重置数据库
+        </button>
+        <button type="button" class="btn btn-danger" data-toggle="tooltip" data-placement="top" title="警告，此操作非常危险">
+            关闭服务器
+        </button>
+    </p>
+
+
+{% endblock %}

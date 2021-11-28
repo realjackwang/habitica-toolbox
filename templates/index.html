@@ -1,0 +1,38 @@
+{% from 'bootstrap/utils.html' import render_messages %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% block head %}
+        <meta charset="UTF-8">
+        {% block styles %}
+            {{ bootstrap.load_css() }}
+        {% endblock %}
+        <title>Habitica 工具集</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename="css/signin.css") }}">
+    {% endblock %}
+</head>
+
+<body class="text-center">
+<form class="form-signin" action="{{ url_for("login") }}" method="post">
+    {{ form.hidden_tag() }}
+    {{ render_messages(container=True, dismissible=True) }}
+    <img class="mb-4" src="{{ url_for('static',filename="img/habitrpg_logo.png") }}" alt="">
+    <h1 class="h3 mb-3 font-weight-normal">{{ _("Habitica 工具集") }}</h1>
+    <label for="inputEmail" class="sr-only">邮箱 或 User ID</label>
+    {{ form.email(class="form-control") }}
+    <label for="inputPassword" class="sr-only">密码 或 API Token</label>
+    {{ form.password(class="form-control") }}
+
+    <div class="checkbox mb-3">
+        <label><input type="checkbox" name="remember-me" checked="true"> {{ _("记住我") }} </label>
+    </div>
+
+    <input class="btn btn-lg btn-primary btn-block" type="submit" value="{{ _("登录") }}">
+    <p class="mt-5 mb-3 text-muted">&copy; 2021</p>
+</form>
+{{ bootstrap.load_js() }}
+</body>
+
+</html>

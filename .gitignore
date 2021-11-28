@@ -1,0 +1,16 @@
+# IntelliJ project files
+.idea
+*.iml
+out
+gen
+
+
+config.py
+
+habitica.sqlite
+messages.pot
+bable.cfg
+
+__pycache__/
+
+app_functions/cipher.bin

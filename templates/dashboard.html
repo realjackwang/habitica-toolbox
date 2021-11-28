@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <br/>
+    <p class="h1 text-center">{{ _("Habitica 工具集") }}</p>
+    <br/><br/>
+
+
+    <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1"
+         aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">{{ _("删除任务") }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <input type="hidden" id="task-id" value="">
+                <div class="modal-body">
+                    {{ _("你确定要删除任务") }}
+                    <a id="task-name"></a>
+                    {{ _("吗？") }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("取消") }}</button>
+                    <a id="confirm" href="/">
+                        <button type="button" class="btn btn-primary" href="">{{ _("确定") }}</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a class="btn btn-primary" href="{{ url_for('create_task') }}" role="button">{{ _("添加") }}</a>
+    <br/><br/>
+    {% if tasks %}
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>{{ _("任务") }}</th>
+                <th>{{ _("时长 (天)") }}</th>
+                <th>{{ _("延迟 (天)") }}</th>
+                <th>{{ _("难度") }}</th>
+                <th>{{ _("编辑") }}</th>
+                <th>{{ _("删除") }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for task in tasks %}
+                <tr>
+                    <td>{{ task.name }}</td>
+                    <td>{{ task.days }}</td>
+                    <td>{{ task.delay }}</td>
+                    <td>{{ task.get_priority_display() }}</td>
+                    <td><a href="{{ url_for('edit_task',id=task.id) }}">{{ _("编辑") }}</a></td>
+                    <td><a data-name="{{ task.name }}" data-id="{{ task.id }}" href="" data-toggle="modal"
+                           data-target="#staticBackdrop">{{ _("删除") }}</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <br/>
+    {% else %}
+        {{ _("当前还没有创建过定期任务") }}
+        <br/>
+        <br/>
+    {% endif %}
+
+
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript">
+        $('#staticBackdrop').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget) // Button that triggered the modal
+            var name = button.data('name')
+            var id = button.data('id')// Extract info from data-* attributes
+            var modal = $(this)
+            modal.find('.modal-body #task-name').text(name)
+            modal.find('#confirm').attr('href', '/delete_task?id=' + id)
+        })
+    </script>
+{% endblock %}
+
+
+
+

@@ -1,0 +1,79 @@
+{% from 'bootstrap/nav.html' import render_nav_item %}
+{% from 'bootstrap/utils.html' import render_messages %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% block head %}
+        <title>{{ _("Habitica 工具集") }}</title>
+    {% endblock %}
+    {{ bootstrap.load_css() }}
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light navbar-fixed-top" id="nav">
+    <div class="navbar-nav mr-auto">
+        {{ render_nav_item('dashboard', _("首页")) }}
+        {{ render_nav_item('index', _('数据面板')) }}
+        {{ render_nav_item('changelog', _('更新日志')) }}
+        {{ render_nav_item('about', _('关于')) }}
+        <li class="nav-item">
+            <a class="nav-link" href="https://dun.mianbaoduo.com/@jackwang">{{ _('赞助') }}</a>
+        </li>
+    </div>
+    <div class="btn-group">
+        <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+            {{ current_user.get_language_display() }}
+        </button>
+        <div class="dropdown-menu dropdown-menu-right">
+            <a class="dropdown-item" href="{{ url_for('language',locale='zh') }}">中文</a>
+            <a class="dropdown-item" href="{{ url_for('language',locale='en') }}">English</a>
+        </div>
+    </div>&nbsp;
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                data-toggle="dropdown"
+                aria-expanded="false">
+            {% if current_user.is_authenticated %}
+                {{ current_user.username }}
+            {% endif %}
+        </button>
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+            <a class="dropdown-item" href="{{ url_for('settings') }}">{{ _("设置") }}</a>
+            {% if current_user.role == 'admin' %}
+                <a class="dropdown-item" href="{{ url_for('admin.index') }}">管理员面板</a>
+            {% endif %}
+            <a class="dropdown-item" href="{{ url_for('logout') }}">{{ _("退出登录") }}</a>
+        </div>
+    </div>
+</nav>
+
+<main class="container" id="main">
+    <br/>
+    {{ render_messages(container=False, dismissible=True) }}
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="footer mt-auto py-3">
+    <div class="container  text-center">
+        © Copyright 2021, Jack Wang. Created using Flask and Bootstrap.
+    </div>
+</footer>
+
+{{ bootstrap.load_js() }}
+</body>
+
+<style>
+    .container#main {
+        min-height: calc(100vh - 110px);
+    }
+
+    .footer {
+        height: 50px;
+    }
+</style>
+
+{% block script %}{% endblock %}
+
+</html>

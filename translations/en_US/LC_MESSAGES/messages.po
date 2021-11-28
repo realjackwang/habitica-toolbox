@@ -1,0 +1,255 @@
+# English (United States) translations for PROJECT.
+# Copyright (C) 2021 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2021-11-28 12:24+0800\n"
+"PO-Revision-Date: 2021-11-28 10:14+0800\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: en_US\n"
+"Language-Team: en_US <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: app.py:67
+msgid "登录失败，请检查 User ID 或者 API token 是否错误"
+msgstr "Login failed, Please check the User ID and API Token"
+
+#: app.py:94 app.py:136 app.py:186 app.py:204 app.py:213 app.py:234 app.py:243
+#: app.py:255
+msgid "登录过期，请重新登录"
+msgstr "Login Expired"
+
+#: form.py:12
+msgid "邮箱"
+msgstr "Email"
+
+#: form.py:12
+msgid "邮箱或User ID不能为空"
+msgstr "Email or User ID is empty"
+
+#: form.py:13
+msgid "邮箱 或 User ID"
+msgstr "Email or User ID"
+
+#: form.py:14
+msgid "密码"
+msgstr "Password"
+
+#: form.py:14
+msgid "密码或API Token不能为空"
+msgstr "Password or API Token is empty"
+
+#: form.py:15
+msgid "密码 或 API Token"
+msgstr "Password or API Token"
+
+#: form.py:16 form.py:36
+msgid "提交"
+msgstr "Submit"
+
+#: form.py:28
+msgid "*任务名称："
+msgstr "*Task Name:"
+
+#: form.py:29
+msgid "输入任务名称"
+msgstr "Task Name"
+
+#: form.py:30
+msgid "备注："
+msgstr "Notes:"
+
+#: form.py:30
+msgid "输入备注（可选，支持markdown语法）"
+msgstr "Notes (Optional)"
+
+#: form.py:31
+msgid "难度："
+msgstr "Difficulty"
+
+#: form.py:31
+msgid "琐事"
+msgstr "Trivial"
+
+#: form.py:31
+msgid "简单"
+msgstr "Easy"
+
+#: form.py:31
+msgid "中等"
+msgstr "Medium"
+
+#: form.py:31
+msgid "困难"
+msgstr "Hard"
+
+#: form.py:33
+msgid "分配完成任务的天数（输入 0 表示没有截止日期）："
+msgstr "Number of days allotted to complete task (enter 0 for no due date):"
+
+#: form.py:34
+msgid "重新创建任务之前延迟的天数（输入 0 表示没有延迟）："
+msgstr "Number of days to delay before re-creating task (enter 0 for no delay):"
+
+#: form.py:35
+msgid "标签："
+msgstr "Tags:"
+
+#: templates/about.html:5
+msgid "关于 - Habitica 工具集"
+msgstr "About - Habitica ToolBox"
+
+#: templates/about.html:10 templates/base.html:19
+msgid "关于"
+msgstr "About"
+
+#: templates/about.html:12
+msgid "大家好，我是Jack Wang，这是我的"
+msgstr "Hello, I'm Jack Wang, this is my "
+
+#: templates/about.html:12
+msgid "个人主页"
+msgstr "Personal Page"
+
+#: templates/about.html:16
+msgid "此项目基于此"
+msgstr "This website is based on this"
+
+#: templates/about.html:16
+msgid "开源项目"
+msgstr "OpenSource Project."
+
+#: templates/about.html:16
+msgid "开发。"
+msgstr " "
+
+#: templates/about.html:20
+msgid "隐私说明："
+msgstr "Privacy info: "
+
+#: templates/about.html:20
+msgid ""
+"此网站不会保存您的密码，您的 API token 会被加密存储，除了直接与 Habitica "
+"共享外，您的信息不会与任何第三方共享。使用此工具将生成\n"
+"    cookie。"
+msgstr ""
+"Your password is never stored. Your API token is encrypted before being "
+"stored. Your info will not be shared from this site, other than with "
+"Habitica directly. Use of this tool will generate cookies."
+
+#: templates/base.html:9 templates/dashboard.html:5 templates/index.html:22
+msgid "Habitica 工具集"
+msgstr "Habitica ToolBox"
+
+#: templates/base.html:17
+msgid "首页"
+msgstr "Home"
+
+#: templates/base.html:18 templates/changelog.html:9
+msgid "更新日志"
+msgstr "Changelog"
+
+#: templates/base.html:21
+msgid "赞助"
+msgstr "Donate"
+
+#: templates/base.html:42 templates/settings.html:9
+msgid "设置"
+msgstr "Settings"
+
+#: templates/base.html:43
+msgid "退出登录"
+msgstr "Logout"
+
+#: templates/changelog.html:4
+msgid "更新日志 - Habitica 工具集"
+msgstr "Changelog - Habitica ToolBox"
+
+#: templates/create_task.html:4
+msgid "新建定期任务 - Habitica 工具集"
+msgstr "New Task - Habitica ToolBox"
+
+#: templates/create_task.html:9
+msgid "新建定期任务"
+msgstr "New Re-To-Do Task"
+
+#: templates/create_task.html:25 templates/dashboard.html:26
+msgid "取消"
+msgstr "Cancel"
+
+#: templates/create_task.html:31
+msgid "提示："
+msgstr "Tips"
+
+#: templates/dashboard.html:14
+msgid "删除任务"
+msgstr "Delete Task"
+
+#: templates/dashboard.html:21
+msgid "你确定要删除任务"
+msgstr "Are you sure to delete task "
+
+#: templates/dashboard.html:23
+msgid "吗？"
+msgstr " ?"
+
+#: templates/dashboard.html:28
+msgid "确定"
+msgstr "Confirm"
+
+#: templates/dashboard.html:35
+msgid "添加"
+msgstr "Add"
+
+#: templates/dashboard.html:41
+msgid "任务"
+msgstr "Tasks"
+
+#: templates/dashboard.html:42
+msgid "时长 (天)"
+msgstr "Days"
+
+#: templates/dashboard.html:43
+msgid "延迟 (天)"
+msgstr "Delays"
+
+#: templates/dashboard.html:44
+msgid "难度"
+msgstr "Difficulty"
+
+#: templates/dashboard.html:45 templates/dashboard.html:56
+msgid "编辑"
+msgstr "Edit"
+
+#: templates/dashboard.html:46 templates/dashboard.html:58
+msgid "删除"
+msgstr "Del"
+
+#: templates/dashboard.html:66
+msgid "当前还没有创建过定期任务"
+msgstr "No Tasks yet, Click Add to add a new Task"
+
+#: templates/index.html:29
+msgid "记住我"
+msgstr "Remember me"
+
+#: templates/index.html:32
+msgid "登录"
+msgstr "Log In"
+
+#: templates/settings.html:4
+msgid "设置 - Habitica 工具集"
+msgstr "Settings - Habitica ToolBox"
+
+#: templates/settings.html:12
+msgid "设置功能完善中..."
+msgstr "Settings Is Unavailable"
+

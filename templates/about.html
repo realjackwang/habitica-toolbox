@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ _("关于 - Habitica 工具集") }}</title>
+</head>
+
+{% block content %}
+    <br/>
+    <p class="h1 text-center">{{ _("关于") }}</p>
+    <br/> <br/>
+    {{ _("大家好，我是Jack Wang，这是我的") }}<a href="https://jackwang.cn/">{{ _("个人主页") }}</a>
+    <br/> <br/>
+    此项目托管于腾讯云函数，了解此项目的更多信息请点击 <a href="#">GitHub repo</a>（暂未上传）
+    <br/><br/>
+    {{ _("此项目基于此") }}<a href="https://github.com/Kirska/Habitica_ToDoOvers/"> {{ _("开源项目") }} </a>{{ _("开发。") }}
+    <br/><br/>
+    如发现网站存在漏洞请点击<a href="#">此处</a>进行反馈（暂未开放）
+    <br/><br/>
+    <b>{{ _("隐私说明：") }}</b>{{ _("此网站不会保存您的密码，您的 API token 会被加密存储，除了直接与 Habitica 共享外，您的信息不会与任何第三方共享。使用此工具将生成
+    cookie。") }}
+    <br/><br/>
+{% endblock %}
