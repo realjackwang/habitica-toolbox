@@ -299,6 +299,15 @@ def scheduled():
         abort(401)
 
 
+@app.route('/reset_database', methods=['GET'])
+def reset_database():
+    if request.args.get('key') == app.config['ADMIN_KEY']:
+        os.remove(app.config['SQLALCHEMY_DATABASE_PATH'])
+        return 'Success!'
+    else:
+        abort(401)
+
+
 # 函数功能，传入当前url 跳转回当前url的前一个url
 def redirect_back(back_url, **kwargs):
     for target in request.args.get('next'), request.referrer:
