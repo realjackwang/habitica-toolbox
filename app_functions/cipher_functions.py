@@ -8,10 +8,11 @@ from __future__ import absolute_import
 __author__ = "Katie Patterson kirska.com"
 __license__ = "MIT"
 
-# import argparse
 from cryptography.fernet import Fernet
 
-from config import CIPHER_FILE
+from app import app
+
+CIPHER_FILE = app.config['CIPHER_FILE']
 
 
 def generate_cipher_key():
@@ -78,17 +79,9 @@ def test_cipher(test_text):
     print(plain_text)
 
 
-"""
-parser = argparse.ArgumentParser(description='Generate a cipher.')
-parser.add_argument('--generate', action='store_true',
-                    help='generate a new cipher' +
-                    'and store in a file USE WITH CAUTION')
-parser.add_argument('--test', help='test your existing cipher')
-
-args = parser.parse_args()
-
-if args.generate:
-    generate_cipher_key()
-elif args.test:
-    test_cipher(args.test)
-"""
+if __name__ == '__main__':
+    args = input('Please choose generate(input 1) or test(input 2) cipher\n')
+    if args == 'generate' or args == 1:
+        generate_cipher_key()
+    elif args == 'test' or args == 2:
+        test_cipher(input('Please input any Text:\n'))

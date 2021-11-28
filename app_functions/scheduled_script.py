@@ -17,7 +17,6 @@ import requests
 from models import Task, User
 from app_functions.cipher_functions import decrypt_text
 from app_functions.to_do_overs_data import ToDoOversData
-from config import CIPHER_FILE
 from extensions import db
 
 
@@ -45,7 +44,7 @@ def check_recreate_task(tdo_data, req, task):
         while retry:
             try:
                 if tdo_data.create_task(tdo_data.hab_user_id, tdo_data.api_token, tdo_data.task_name, tdo_data.notes,
-                                        tdo_data.task_days, tdo_data.priority, tdo_data.tags, CIPHER_FILE):
+                                        tdo_data.task_days, tdo_data.priority, tdo_data.tags):
                     new_task = Task()
                     new_task.id = tdo_data.task_id
                     new_task.owner = task.owner
@@ -136,7 +135,7 @@ def check_recreate_task(tdo_data, req, task):
 
             while retry:
                 if tdo_data.create_task(tdo_data.hab_user_id, tdo_data.api_token, tdo_data.task_name, tdo_data.notes,
-                                        tdo_data.task_days, tdo_data.priority, tdo_data.tags, CIPHER_FILE):
+                                        tdo_data.task_days, tdo_data.priority, tdo_data.tags):
                     new_task = Task()
                     new_task.id = tdo_data.task_id
                     new_task.owner = task.owner
@@ -221,7 +220,7 @@ def run():
             headers = {
                 'x-api-user': str(task_.owner),
                 'x-api-key': decrypt_text(
-                    tdo_data.api_token, CIPHER_FILE
+                    tdo_data.api_token
                 )
             }
 
