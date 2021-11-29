@@ -15,8 +15,8 @@ import pytz
 import requests
 
 from models import Task, User
-from app_functions.cipher_functions import decrypt_text
-from app_functions.to_do_overs_data import ToDoOversData
+from utils.cipher_functions import decrypt_text
+from utils.to_do_overs_data import ToDoOversData
 from extensions import db
 
 
@@ -24,38 +24,20 @@ def check_recreate_task(tdo_data, req, task):
     req_json = req.json()
     if req_json['data']['completed'] and task.delay == 0:
         # Task was completed and there is no delay so recreate it
-        tdo_data.hab_user_id = task.owner
-        tdo_data.priority = task.priority
-        tdo_data.api_token = User.query.get(tdo_data.hab_user_id).api_token
-        tdo_data.notes = task.notes
-        tdo_data.task_name = task.name
-        tdo_data.task_days = task.days
 
         # convert tags from their DB ID to the tag UUID
-        tag_list = []
+        tags = []
         for tag in task.tags:
-            tag_list.append(tag.id)
-
-        tdo_data.tags = tag_list
+            tags.append(tag.id)
 
         retry = True
         delay_seconds = 0
-
         while retry:
             try:
-                if tdo_data.create_task(tdo_data.hab_user_id, tdo_data.api_token, tdo_data.task_name, tdo_data.notes,
-                                        tdo_data.task_days, tdo_data.priority, tdo_data.tags):
-                    new_task = Task()
-                    new_task.id = tdo_data.task_id
-                    new_task.owner = task.owner
-                    new_task.notes = task.notes
-                    new_task.tags = task.tags
-                    new_task.name = task.name
-                    new_task.days = task.days
-                    new_task.priority = task.priority
-                    new_task.delay = task.delay
-                    db.session.delete(task)
-                    db.session.add(new_task)
+                user = User.query.get(task.owner)
+                checklist = task.checklist.split('\n')
+                if tdo_data.create_task(user, task, tags, checklist):
+                    task.id = tdo_data.task_id
                     db.session.commit()
                     retry = False
                     delay_seconds = 0
@@ -116,38 +98,20 @@ def check_recreate_task(tdo_data, req, task):
         # The delay we want is 1 + delay value
         if elapsed_time.days > task.delay:
             # Task was completed and the delay has passed
-            tdo_data.hab_user_id = task.owner.id
-            tdo_data.priority = task.priority
-            tdo_data.api_token = task.owner.api_token
-            tdo_data.notes = task.notes
-            tdo_data.task_name = task.name
-            tdo_data.task_days = task.days
 
             # convert tags from their DB ID to the tag UUID
-            tag_list = []
+            tags = []
             for tag in task.tags.all():
-                tag_list.append(tag.tag_id)
-
-            tdo_data.tags = tag_list
+                tags.append(tag.tag_id)
 
             retry = True
             delay_seconds = 0
 
             while retry:
-                if tdo_data.create_task(tdo_data.hab_user_id, tdo_data.api_token, tdo_data.task_name, tdo_data.notes,
-                                        tdo_data.task_days, tdo_data.priority, tdo_data.tags):
-                    new_task = Task()
-                    new_task.id = tdo_data.task_id
-                    new_task.owner = task.owner
-                    new_task.notes = task.notes
-                    new_task.tags = task.tags
-                    new_task.name = task.name
-                    new_task.days = task.days
-                    new_task.priority = task.priority
-                    new_task.delay = task.delay
-
-                    db.session.delete(task)
-                    db.session.add(new_task)
+                user = User.query.get(task.owner)
+                checklist = task.checklist.split('\n')
+                if tdo_data.create_task(user, task, tags, checklist):
+                    task.id = tdo_data.task_id
                     db.session.commit()
                     retry = False
                     delay_seconds = 0

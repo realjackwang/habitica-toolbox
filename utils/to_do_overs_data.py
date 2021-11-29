@@ -125,103 +125,92 @@ class ToDoOversData(object):
             return True
         return False
 
-    def create_task(self, user_id, api_token, task_name, notes, task_days, priority, tags,
-                    cipher_file_path=CIPHER_FILE):
+    def create_task(self, user, task, tags, checklist=None):
         """Create a task on Habitica.
         Returns:
             True for success, False for failure.
         """
         headers = {
-            'x-api-user': user_id,
+            'x-api-user': user.id,
             'x-api-key': decrypt_text(
-                api_token,
-                cipher_file_path
+                user.api_token,
+                CIPHER_FILE
             ).decode()
         }
-
-        if int(task_days) > 0:
-            due_date = datetime.now() + timedelta(days=int(task_days))
+        data = {
+            'text': task.name,
+            'type': 'todo',
+            'notes': task.notes,
+            'priority': task.priority,
+            'tags': tags,
+        }
+        if int(task.days) > 0:
+            due_date = datetime.now() + timedelta(days=int(task.days))
             due_date = due_date.isoformat()
-
-            req = requests.post(
-                'https://habitica.com/api/v3/tasks/user',
-                headers=headers,
-                data={
-                    'text': task_name,
-                    'type': 'todo',
-                    'notes': notes,
-                    'date': due_date,
-                    'priority': priority,
-                    'tags': tags,
-                }
-            )
-            self.return_code = req.status_code
-            if req.status_code == 201:
-                req_json = req.json()
-                self.task_id = req_json['data']['id']
-                return True
-            return False
+            data['date'] = due_date
+        req = requests.post(
+            'https://habitica.com/api/v3/tasks/user',
+            headers=headers,
+            data=data
+        )
+        self.return_code = req.status_code
+        if req.status_code == 201:
+            req_json = req.json()
+            self.task_id = req_json['data']['id']
+            task.id = req_json['data']['id']
+            if checklist:
+                self.add_items_to_checklist(user, task, checklist)
+            return True
         else:
-            req = requests.post(
-                'https://habitica.com/api/v3/tasks/user',
-                headers=headers,
-                data={
-                    'text': task_name,
-                    'type': 'todo',
-                    'notes': notes,
-                    'priority': priority,
-                    'tags': tags,
-                }
-            )
-            self.return_code = req.status_code
-            if req.status_code == 201:
-                req_json = req.json()
-                self.task_id = req_json['data']['id']
-                return True
             return False
 
-    def edit_task(self, user_id, api_token, task_id, task_name, notes, task_days, priority, tags,
-                  cipher_file_path=CIPHER_FILE):
+    def edit_task(self, user, task, tags=None):
         """Edit a task on Habitica.
 
         Returns:
             True for success, False for failure.
         """
-        headers = {'x-api-user': user_id,
-                   'x-api-key': decrypt_text(api_token)}
-        url = 'https://habitica.com/api/v3/tasks/' + str(task_id)
-
-        if int(task_days) > 0:
-            due_date = datetime.now() + timedelta(days=int(task_days))
+        headers = {'x-api-user': user.id,
+                   'x-api-key': decrypt_text(user.api_token)}
+        url = 'https://habitica.com/api/v3/tasks/' + task.id
+        data = {
+            'text': task.name,
+            'notes': task.notes,
+            'priority': task.priority,
+            'tags': tags,
+        }
+        if int(task.days) > 0:
+            due_date = datetime.now() + timedelta(days=int(task.days))
             due_date = due_date.isoformat()
-
-            req = requests.put(url, headers=headers, data={
-                'text': task_name,
-                'notes': notes,
-                'date': due_date,
-                'priority': priority,
-                'tags': tags,
-            })
-            self.return_code = req.status_code
-            if req.status_code == 200:
-                req_json = req.json()
-                self.task_id = req_json['data']['id']
-                return True
-            return False
+            data['date'] = due_date
+        req = requests.put(url, headers=headers, data=data)
+        self.return_code = req.status_code
+        if req.status_code == 200:
+            req_json = req.json()
+            self.task_id = req_json['data']['id']
+            return True
         else:
-            req = requests.put(url, headers=headers, data={
-                'text': task_name,
-                'notes': notes,
-                'priority': priority,
-                'tags': tags,
-            })
+            return False
+
+    def add_items_to_checklist(self, user, task, items):
+        headers = {
+            'x-api-user': task.owner.encode('utf-8'),
+            'x-api-key': decrypt_text(
+                user.api_token,
+                CIPHER_FILE,
+            )
+        }
+        for item in items:
+            req = requests.post(
+                'https://habitica.com/api/v3/tasks/%s/checklist' % task.id,
+                headers=headers,
+                data={'text': item}
+            )
             self.return_code = req.status_code
-            if req.status_code == 200:
-                req_json = req.json()
-                self.task_id = req_json['data']['id']
-                return True
-            else:
-                return False
+        if self.return_code == 200:
+            return True
+        else:
+            return False
 
     def get_user_tags(self, user_id, api_token, cipher_file_path=CIPHER_FILE):
         """Get the list of a user's tags.
@@ -248,7 +237,7 @@ class ToDoOversData(object):
 
             user = User.query.get(user_id)
 
-            current_tags = Tag.query.filter(Tag.tag_owner == user.id)
+            current_tags = Tag.query.filter(Tag.tag_owner == user.id).all()
             current_tag_ids = []
             for tag in current_tags:
                 current_tag_ids.append(tag.id)
@@ -271,7 +260,7 @@ class ToDoOversData(object):
 
                 for leftover_tag in current_tag_ids:
                     print('deleting tag ' + leftover_tag)
-                    tag = Tag.query.filter(Tag.id == leftover_tag)
+                    tag = Tag.query.filter(Tag.id == leftover_tag).all()
                     db.session.delete(tag)
                     db.session.commit()
 

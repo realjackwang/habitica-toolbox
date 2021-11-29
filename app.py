@@ -4,17 +4,18 @@ from flask import Flask, render_template, request, redirect, url_for, flash, abo
 from flask_admin.helpers import is_safe_url
 from flask_babel import gettext as _
 from flask_login import login_user, login_required, current_user, logout_user
-from pyotp import TOTP
 
-from app_functions import scheduled_script
-from app_functions.cipher_functions import encrypt_text, init_cipher_key
-from app_functions.to_do_overs_data import ToDoOversData
 from config import config
-from decorators import permission_required, admin_required
-from extensions import db, login_manager, admin, babel, bootstrap, migrate
+from decorators import permission_required, no_maintenance_required
+from extensions import db, login_manager, admin, babel, bootstrap, migrate, scheduler
 from forms import Login, TasksModelForm
 from models import User, Task, Tag, Changelog, Notice, Role, Guest
+from utils.cipher_functions import encrypt_text, init_cipher_key
+from utils.scheduled_script import run_task
+from utils.to_do_overs_data import ToDoOversData
 from views import MyView, MyAdminIndexView
+
+# from pyotp import TOTP
 
 app = Flask(__name__)
 
@@ -25,6 +26,8 @@ db.app = app
 db.init_app(app)
 db.create_all()
 babel.init_app(app)
+scheduler.init_app(app)
+scheduler.start()
 login_manager.init_app(app)
 login_manager.anonymous_user = Guest
 migrate.init_app(app, db)
@@ -40,11 +43,16 @@ init_cipher_key()
 
 @app.route('/')
 def index():
-    if current_user.is_authenticated:
-        return redirect(url_for("dashboard"))
+    if Notice.query.filter_by(type='maintenance', expired=False).first() is None:
+        if current_user.is_authenticated:
+            return redirect(url_for("dashboard"))
+        else:
+            form = Login()
+            return render_template('index.html', form=form, maintenance=False)
     else:
         form = Login()
-        return render_template('index.html', form=form)
+        flash(_('系统维护中'))
+        return render_template('index.html', form=form, maintenance=True)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -53,26 +61,26 @@ def login():
     if form.validate_on_submit():
         username = form.email.data
         password = form.password.data
-        session_class = ToDoOversData()
+        tdo_data = ToDoOversData()
         if '-' in username and len(username) == 32:
             user_id = username
             api_token = encrypt_text(password.encode('utf-8'))
-            if session_class.login_api_key(user_id, api_token):
+            if tdo_data.login_api_key(user_id, api_token):
                 next_url = request.args.get('next')
                 if next_url and not is_safe_url(next_url):
                     return abort(400)
-                user = User.query.get(session_class.hab_user_id)
+                user = User.query.get(tdo_data.hab_user_id)
                 login_user(user)
                 return redirect(next_url, url_for("dashboard"))
             else:
                 flash(_('登录失败，请检查 User ID 或者 API token 是否错误'))
                 return redirect(url_for("index"))
         elif '@' in username and '.' in username:
-            if session_class.login(username, password):
+            if tdo_data.login(username, password):
                 next_url = request.args.get('next')
                 if next_url and not is_safe_url(next_url):
                     return abort(400)
-                user = User.query.get(session_class.hab_user_id)
+                user = User.query.get(tdo_data.hab_user_id)
                 if request.form.get('remember-me'):
                     login_user(user, remember=True)
                 else:
@@ -88,10 +96,12 @@ def login():
 
 @app.route('/dashboard', methods=['GET'])
 @permission_required('BROWSE')
+@no_maintenance_required
 def dashboard():
     if current_user.is_authenticated:
         tasks = Task.query.filter(Task.owner == current_user.id).all()
-        return render_template('dashboard.html', tasks=tasks)
+        notices = Notice.query.filter_by(pages='dashboard', expired=False)
+        return render_template('dashboard.html', tasks=tasks, notices=notices)
     else:
         flash(_('登录过期，请重新登录'))
         return redirect(url_for("index"))
@@ -99,23 +109,24 @@ def dashboard():
 
 @app.route('/create_task', methods=['GET', 'POST'])
 @permission_required('CREATE')
+@no_maintenance_required
 def create_task():
     if current_user.is_authenticated:
-        session_class = ToDoOversData()
+        tdo_data = ToDoOversData()
         user_id = current_user.id
         api_token = current_user.api_token
-        tags = session_class.get_user_tags(user_id, api_token)
+        tags = tdo_data.get_user_tags(user_id, api_token)
         choices = [(tag['id'], tag['name']) for tag in tags]
         form = TasksModelForm()
         form.tags.choices = choices
         if request.method == 'GET':
             return render_template('create_task.html', form=form)
         elif request.method == 'POST':
-            task = Task()
-            if int(session_class.task_days) < 0:
+            if int(tdo_data.task_days) < 0:
                 flash(_('警告：检测到非法请求！'), 'errors')
                 return redirect(url_for('dashboard'))
             if form.validate_on_submit():
+                task = Task()
                 task.name = form.name.data
                 task.notes = form.notes.data
                 task.days = form.days.data
@@ -123,10 +134,16 @@ def create_task():
                 task.priority = form.priority.data
                 task.owner = user_id
                 tags = form.tags.data
-                task.tags = [Tag.query.get(tag) for tag in tags]
-                if session_class.create_task(user_id, api_token, task.name, task.notes, task.days, task.priority,
-                                             tags):
-                    task.id = session_class.task_id
+                checklist = form.checklist.data.replace('\r', '').split('\n')
+                checklist_len = len(checklist)
+                for i in range(len(checklist)):
+                    if not checklist[checklist_len - i - 1]:
+                        checklist.pop(checklist_len - i - 1)
+                if tdo_data.create_task(current_user, task, tags, checklist):
+                    task.id = tdo_data.task_id
+                    task.tags = Tag.query.filter(Tag.id.in_(
+                        tags)).all()  # 放在task.id被赋值后，因为autoflush会在执行Query的时候将之前未提交的数据库变动给提交到数据库内存，此时id未赋值，会出错
+                    task.checklist = form.checklist.data
                     db.session.add(task)
                     db.session.commit()
                     return redirect(url_for('dashboard'))
@@ -142,12 +159,13 @@ def create_task():
 
 @app.route('/edit_task', methods=['GET', 'POST'])
 @permission_required('CREATE')
+@no_maintenance_required
 def edit_task():
     if current_user.is_authenticated:
-        session_class = ToDoOversData()
+        tdo_data = ToDoOversData()
         user_id = current_user.id
         api_token = current_user.api_token
-        tags = session_class.get_user_tags(user_id, api_token)
+        tags = tdo_data.get_user_tags(user_id, api_token)
         choices = [(tag['id'], tag['name']) for tag in tags]
         form = TasksModelForm()
         form.tags.choices = choices
@@ -160,25 +178,27 @@ def edit_task():
             form.id = task_id
             form.name.data = task.name
             form.notes.data = task.notes
+            form.checklist.data = task.checklist
+            form.checklist.render_kw = {'placeholder': _('输入子任务（可选，每一行为一个子任务）（不会立即生效，只会修改下一次任务的子任务）')}
             form.days.data = task.days
             form.delay.data = task.delay
             form.priority.data = task.priority
-            form.tags.default = task.tags
+            form.tags.data = [tag.id for tag in task.tags]
             return render_template('create_task.html', form=form)
         elif request.method == 'POST':
             if form.validate_on_submit():
-                if int(session_class.task_days) < 0:
+                if int(tdo_data.task_days) < 0:
                     return redirect(url_for('edit_task'))
                 task.name = form.name.data
                 task.notes = form.notes.data
+                task.checklist = form.checklist.data
                 task.days = form.days.data
                 task.delay = form.delay.data
                 task.priority = form.priority.data
                 task.owner = user_id
                 tags = form.tags.data
-                task.tags = [Tag.query.get(tag) for tag in tags]
-                if session_class.edit_task(user_id, api_token, task.id, task.name, task.notes, task.days, task.priority,
-                                           tags):
+                task.tags = Tag.query.filter(Tag.id.in_(tags)).all()
+                if tdo_data.edit_task(current_user, task, tags):
                     db.session.commit()
                     return redirect(url_for('dashboard'))
                 else:
@@ -193,6 +213,7 @@ def edit_task():
 
 @app.route('/delete_task', methods=['GET'])
 @login_required
+@no_maintenance_required
 def delete_task():
     if current_user.is_authenticated:
         user_id = current_user.id
@@ -212,9 +233,11 @@ def delete_task():
 
 @app.route('/about', methods=['GET'])
 @login_required
+@no_maintenance_required
 def about():
     if current_user.is_authenticated:
-        return render_template('about.html')
+        notices = Notice.query.filter_by(pages='about', expired=False)
+        return render_template('about.html', notices=notices)
     else:
         flash(_('登录过期，请重新登录'))
         return redirect(url_for("index"))
@@ -222,6 +245,7 @@ def about():
 
 @app.route('/changelog', methods=['GET'])
 @login_required
+@no_maintenance_required
 def changelog():
     if current_user.is_authenticated:
         changelogs = Changelog.query.all()
@@ -236,7 +260,8 @@ def changelog():
                 changelog_sub.append(
                     [changelog_sub_type[i], changelog_sub_subject[i], Changelog.TYPES[changelog_sub_type[i]]])
             data.append([changelog_title, changelog_sub])
-        return render_template('changelog.html', changelogs=data)
+        notices = Notice.query.filter_by(pages='changelog', expired=False)
+        return render_template('changelog.html', changelogs=data, notices=notices)
     else:
         flash(_('登录过期，请重新登录'))
         return redirect(url_for("index"))
@@ -244,9 +269,11 @@ def changelog():
 
 @app.route('/settings', methods=['GET'])
 @login_required
+@no_maintenance_required
 def settings():
     if current_user.is_authenticated:
-        return render_template('settings.html')
+        notices = Notice.query.filter_by(pages='settings', expired=False)
+        return render_template('settings.html', notices=notices)
     else:
         flash(_('登录过期，请重新登录'))
         return redirect(url_for("index"))
@@ -274,28 +301,25 @@ def logout():
 
 
 @app.route('/scheduled', methods=['GET'])
-@admin_required
 def scheduled():
     if app.config['SCHEDULED_KEY']:
         if request.args.get('key') == app.config['SCHEDULED_KEY']:
-            scheduled_script.run()
+            run_task()
             return 'Success!'
     abort(401)
 
 
-# @app.route('/database_migrate', methods=['GET'])
-# def database_migrate():
-#     if app.config['MIGRATE_KEY']:
-#         if request.args.get('key') == app.config['MIGRATE_KEY']:
-#             if request.args.get('totp') != TOTP(app.config['TOTP_SECRET']).now():
-#                 import subprocess
-#                 process = subprocess.Popen('flask db --help', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-#                 process.wait()
-#                 command_output = process.stdout.read().decode('utf-8')
-#                 # os.remove(app.config['SQLALCHEMY_DATABASE_PATH'])
-#                 # db.create_all()
-#                 return command_output
-#     abort(401)
+@app.route('/favicon.ico')
+def favicon():
+    return app.send_static_file('img/favicon.ico')
+
+
+@app.errorhandler(401)
+@app.errorhandler(403)
+@app.errorhandler(404)
+def err_404_page(err):
+    flash(str(err), 'error')
+    return redirect(url_for("index"))
 
 
 # 函数功能，传入当前url 跳转回当前url的前一个url
