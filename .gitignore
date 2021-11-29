@@ -11,8 +11,14 @@ bable.cfg
 
 __pycache__/
 
-app_functions/cipher.bin
+utils/cipher.bin
 
 .history/
 
 config.txt
+
+mnt/
+
+data.db
+
+*.txt

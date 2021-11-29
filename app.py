@@ -1,49 +1,40 @@
 import os
 
-import pyotp
-from flask_babel import Babel, gettext as _
-from flask_admin import Admin
-from flask_admin.helpers import is_safe_url
-from flask_login import LoginManager, login_user, login_required, current_user, logout_user
-from flask_bootstrap import Bootstrap
 from flask import Flask, render_template, request, redirect, url_for, flash, abort
+from flask_admin.helpers import is_safe_url
+from flask_babel import gettext as _
+from flask_login import login_user, login_required, current_user, logout_user
+from pyotp import TOTP
 
-from extensions import db
-from models import User, Task, Tag, Changelog, Notice
-from config import DevConfig, ProdConfig
-from forms import Login, TasksModelForm
 from app_functions import scheduled_script
 from app_functions.cipher_functions import encrypt_text, init_cipher_key
 from app_functions.to_do_overs_data import ToDoOversData
+from config import config
+from decorators import permission_required, admin_required
+from extensions import db, login_manager, admin, babel, bootstrap, migrate
+from forms import Login, TasksModelForm
+from models import User, Task, Tag, Changelog, Notice, Role, Guest
 from views import MyView, MyAdminIndexView
 
 app = Flask(__name__)
 
-if 'ENV' in os.environ and os.getenv('ENV') == 'prod':
-    app.config.from_object(ProdConfig)
-else:
-    app.config.from_object(DevConfig)
+config_name = os.getenv('FLASK_ENV', 'development')
+app.config.from_object(config[config_name])
 
 db.app = app
 db.init_app(app)
 db.create_all()
-
-login_manager = LoginManager()
+babel.init_app(app)
 login_manager.init_app(app)
-
-admin = Admin(app, index_view=MyAdminIndexView(
-    name='首页',
-    template='admin/index.html'
-))
+login_manager.anonymous_user = Guest
+migrate.init_app(app, db)
+bootstrap.init_app(app)
+admin.init_app(app, index_view=MyAdminIndexView(name='首页', template='admin/index.html'))
 admin.add_view(MyView(User, db.session))
 admin.add_view(MyView(Task, db.session))
 admin.add_view(MyView(Changelog, db.session))
 admin.add_view(MyView(Notice, db.session))
-
-bootstrap = Bootstrap(app)
-
-babel = Babel(app)
-
+Role.init_role()
 init_cipher_key()
 
 
@@ -88,14 +79,15 @@ def login():
                     login_user(user, remember=False)
                 return redirect(next_url or url_for("dashboard"))
             else:
-                flash('登录失败，请检查登录邮箱或者密码是否错误')
+                flash(_('登录失败，请检查登录邮箱或者密码是否错误'))
                 return redirect(url_for("index"))
         else:
-            flash('登录失败，你输入的账号不符合邮箱或User ID的任何一种')
+            flash(_('登录失败，你输入的账号不符合邮箱或User ID的任何一种'))
             return redirect(url_for("index"))
 
 
 @app.route('/dashboard', methods=['GET'])
+@permission_required('BROWSE')
 def dashboard():
     if current_user.is_authenticated:
         tasks = Task.query.filter(Task.owner == current_user.id).all()
@@ -106,6 +98,7 @@ def dashboard():
 
 
 @app.route('/create_task', methods=['GET', 'POST'])
+@permission_required('CREATE')
 def create_task():
     if current_user.is_authenticated:
         session_class = ToDoOversData()
@@ -120,7 +113,7 @@ def create_task():
         elif request.method == 'POST':
             task = Task()
             if int(session_class.task_days) < 0:
-                flash('警告：检测到非法请求！')
+                flash(_('警告：检测到非法请求！'), 'errors')
                 return redirect(url_for('dashboard'))
             if form.validate_on_submit():
                 task.name = form.name.data
@@ -148,6 +141,7 @@ def create_task():
 
 
 @app.route('/edit_task', methods=['GET', 'POST'])
+@permission_required('CREATE')
 def edit_task():
     if current_user.is_authenticated:
         session_class = ToDoOversData()
@@ -160,7 +154,7 @@ def edit_task():
         task_id = request.args['id']
         task = Task.query.get(task_id)
         if not task or user_id != task.owner:
-            flash('警告：你没有对他人任务进行修改的权限！多次尝试可能会被禁止登陆')
+            flash(_('警告：你没有对他人任务进行修改的权限！多次尝试可能会被禁止登陆'), 'errors')
             return redirect(url_for('dashboard'))
         if request.method == 'GET':
             form.id = task_id
@@ -188,7 +182,7 @@ def edit_task():
                     db.session.commit()
                     return redirect(url_for('dashboard'))
                 else:
-                    flash('发生未知错误导致修改任务失败，请反馈')
+                    flash(_('发生未知错误导致修改任务失败，请反馈'))
                     return redirect(url_for('edit_task'))
             else:
                 return redirect(url_for('edit_task'))
@@ -198,13 +192,14 @@ def edit_task():
 
 
 @app.route('/delete_task', methods=['GET'])
+@login_required
 def delete_task():
     if current_user.is_authenticated:
         user_id = current_user.id
         task_id = request.args.get('id')
         task = Task.query.get(task_id)
         if not task or user_id != task.owner:
-            flash('警告：你没有对他人任务进行修改的权限！多次尝试可能会被禁止登陆')
+            flash(_('警告：你没有对他人任务进行修改的权限！多次尝试可能会被禁止登陆'))
             return redirect(url_for('dashboard'))
         else:
             db.session.delete(task)
@@ -216,6 +211,7 @@ def delete_task():
 
 
 @app.route('/about', methods=['GET'])
+@login_required
 def about():
     if current_user.is_authenticated:
         return render_template('about.html')
@@ -225,6 +221,7 @@ def about():
 
 
 @app.route('/changelog', methods=['GET'])
+@login_required
 def changelog():
     if current_user.is_authenticated:
         changelogs = Changelog.query.all()
@@ -246,6 +243,7 @@ def changelog():
 
 
 @app.route('/settings', methods=['GET'])
+@login_required
 def settings():
     if current_user.is_authenticated:
         return render_template('settings.html')
@@ -255,6 +253,7 @@ def settings():
 
 
 @app.route('/language', methods=['GET'])
+@login_required
 def language():
     if current_user.is_authenticated:
         locale = request.args.get('locale')
@@ -266,23 +265,6 @@ def language():
         return redirect(url_for("index"))
 
 
-@app.route('/set_role', methods=['GET'])
-@login_required
-def set_role():
-    if app.config['ADMIN_KEY']:
-        if request.args.get('key') == app.config['ADMIN_KEY']:
-            if request.args.get('role') in User.ROLES:
-                current_user.role = request.args.get('role')
-                db.session.commit()
-                flash('用户角色成功修改为' + request.args.get('role'))
-                return redirect(url_for("dashboard"))
-            else:
-                flash('用户角色参数错误')
-                return redirect(url_for("dashboard"))
-    flash(_('输入了错误的网址，或者你没有权限访问'))
-    return redirect(url_for("index"))
-
-
 @app.route('/logout', methods=['GET', 'POST'])
 @login_required
 def logout():
@@ -292,7 +274,7 @@ def logout():
 
 
 @app.route('/scheduled', methods=['GET'])
-@login_required
+@admin_required
 def scheduled():
     if app.config['SCHEDULED_KEY']:
         if request.args.get('key') == app.config['SCHEDULED_KEY']:
@@ -301,17 +283,19 @@ def scheduled():
     abort(401)
 
 
-@app.route('/reset_database', methods=['GET'])
-def reset_database():
-    """仅限开发阶段使用，请不要在发布阶段开启这样的危险命令
-    """
-    if app.config['ADMIN_KEY']:
-        if request.args.get('key') == app.config['ADMIN_KEY']:
-            if request.args.get('totp') == pyotp.TOTP(app.config['TOTP_SECRET']).now():
-                os.remove(app.config['SQLALCHEMY_DATABASE_PATH'])
-                db.create_all()
-                return 'Success!'
-    abort(401)
+# @app.route('/database_migrate', methods=['GET'])
+# def database_migrate():
+#     if app.config['MIGRATE_KEY']:
+#         if request.args.get('key') == app.config['MIGRATE_KEY']:
+#             if request.args.get('totp') != TOTP(app.config['TOTP_SECRET']).now():
+#                 import subprocess
+#                 process = subprocess.Popen('flask db --help', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+#                 process.wait()
+#                 command_output = process.stdout.read().decode('utf-8')
+#                 # os.remove(app.config['SQLALCHEMY_DATABASE_PATH'])
+#                 # db.create_all()
+#                 return command_output
+#     abort(401)
 
 
 # 函数功能，传入当前url 跳转回当前url的前一个url

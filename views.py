@@ -3,12 +3,15 @@ from flask_admin.contrib.sqla import ModelView
 from flask_login import current_user
 from flask import redirect, url_for, flash
 
+from decorators import admin_required
+
 
 class MyAdminIndexView(AdminIndexView):
 
     @expose('/')
+    @admin_required
     def index(self):
-        if not current_user.is_authenticated or current_user.role != 'admin':
+        if not current_user.is_admin:
             flash('输入了错误的网址，或者你没有权限访问')
             return redirect(url_for('index'))
         return super(MyAdminIndexView, self).index()
@@ -17,4 +20,4 @@ class MyAdminIndexView(AdminIndexView):
 class MyView(ModelView):
 
     def is_accessible(self):
-        return current_user.is_authenticated and current_user.role == 'admin'
+        return current_user.is_admin
