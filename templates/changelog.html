@@ -5,20 +5,7 @@
 {% endblock %}
 
 {% block content %}
-    <br/>
     <p class="h1 text-center">{{ _("更新日志") }}</p>
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        <a><span class="badge badge-warning">Pause</span> 暂时停止更新，后续将开源，并对已有代码进行完善</a>
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        <a><span class="badge badge-warning">Info</span> 由于域名未备案，所以暂时只能用腾讯云分配的域名</a>
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
     {% for changelog in changelogs %}
         <h4>{{ changelog[0] }}</h4>
         <ul>

@@ -6,6 +6,7 @@
 <head>
     {% block head %}
         <meta charset="UTF-8">
+        <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
         {% block styles %}
             {{ bootstrap.load_css() }}
         {% endblock %}
@@ -28,8 +29,12 @@
     <div class="checkbox mb-3">
         <label><input type="checkbox" name="remember-me" checked="true"> {{ _("记住我") }} </label>
     </div>
+    {% if maintenance %}
+        <input class="btn btn-lg btn-primary btn-block disabled" disabled="disabled" type="submit" value="{{ _("登录") }}">
+    {% else %}
+        <input class="btn btn-lg btn-primary btn-block" type="submit" value="{{ _("登录") }}">
+    {% endif %}
 
-    <input class="btn btn-lg btn-primary btn-block" type="submit" value="{{ _("登录") }}">
     <p class="mt-5 mb-3 text-muted">&copy; 2021</p>
 </form>
 {{ bootstrap.load_js() }}

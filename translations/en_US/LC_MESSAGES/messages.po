@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-11-28 12:24+0800\n"
+"POT-Creation-Date: 2021-11-29 18:12+0800\n"
 "PO-Revision-Date: 2021-11-28 10:14+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en_US\n"
@@ -18,88 +18,125 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
 
-#: app.py:67
+#: app.py:51
+msgid "系统维护中"
+msgstr "System maintenance in progress"
+
+#: app.py:73
 msgid "登录失败，请检查 User ID 或者 API token 是否错误"
 msgstr "Login failed, Please check the User ID and API Token"
 
-#: app.py:94 app.py:136 app.py:186 app.py:204 app.py:213 app.py:234 app.py:243
-#: app.py:255
+#: app.py:87
+msgid "登录失败，请检查登录邮箱或者密码是否错误"
+msgstr "Login failed, Please check the Email and Password"
+
+#: app.py:90
+msgid "登录失败，你输入的账号不符合邮箱或User ID的任何一种"
+msgstr "Login failed, Your input is not Email nor User ID"
+
+#: app.py:103 app.py:146 app.py:197 app.py:216 app.py:227 app.py:250 app.py:261
+#: app.py:274
 msgid "登录过期，请重新登录"
 msgstr "Login Expired"
 
-#: form.py:12
+#: app.py:123
+msgid "警告：检测到非法请求！"
+msgstr "Warning：Illegal request detected!"
+
+#: app.py:164 app.py:209
+msgid "警告：你没有对他人任务进行修改的权限！多次尝试可能会被禁止登陆"
+msgstr ""
+"Warning: You do not have permission to make changes to other people's "
+"tasks! Multiple attempts may result in a ban"
+
+#: app.py:192
+msgid "发生未知错误导致修改任务失败，请反馈"
+msgstr ""
+"An unknown error occurred that caused the modification task to fail, "
+"please feedback"
+
+#: forms.py:12
 msgid "邮箱"
 msgstr "Email"
 
-#: form.py:12
+#: forms.py:12
 msgid "邮箱或User ID不能为空"
 msgstr "Email or User ID is empty"
 
-#: form.py:13
+#: forms.py:13
 msgid "邮箱 或 User ID"
 msgstr "Email or User ID"
 
-#: form.py:14
+#: forms.py:14
 msgid "密码"
 msgstr "Password"
 
-#: form.py:14
+#: forms.py:14
 msgid "密码或API Token不能为空"
 msgstr "Password or API Token is empty"
 
-#: form.py:15
+#: forms.py:15
 msgid "密码 或 API Token"
 msgstr "Password or API Token"
 
-#: form.py:16 form.py:36
+#: forms.py:16 forms.py:37
 msgid "提交"
 msgstr "Submit"
 
-#: form.py:28
-msgid "*任务名称："
-msgstr "*Task Name:"
-
-#: form.py:29
-msgid "输入任务名称"
-msgstr "Task Name"
-
-#: form.py:30
-msgid "备注："
-msgstr "Notes:"
-
-#: form.py:30
-msgid "输入备注（可选，支持markdown语法）"
-msgstr "Notes (Optional)"
-
-#: form.py:31
-msgid "难度："
-msgstr "Difficulty"
-
-#: form.py:31
+#: forms.py:28
 msgid "琐事"
 msgstr "Trivial"
 
-#: form.py:31
+#: forms.py:28
 msgid "简单"
 msgstr "Easy"
 
-#: form.py:31
+#: forms.py:28
 msgid "中等"
 msgstr "Medium"
 
-#: form.py:31
+#: forms.py:28
 msgid "困难"
 msgstr "Hard"
 
-#: form.py:33
+#: forms.py:29
+msgid "*任务名称："
+msgstr "*Task Name:"
+
+#: forms.py:30
+msgid "输入任务名称"
+msgstr "Task Name"
+
+#: forms.py:31
+msgid "备注："
+msgstr "Notes:"
+
+#: forms.py:31
+msgid "输入备注（可选，支持markdown语法）"
+msgstr "Notes (Optional)"
+
+#: forms.py:32
+msgid "难度："
+msgstr "Difficulty"
+
+#: forms.py:33
 msgid "分配完成任务的天数（输入 0 表示没有截止日期）："
 msgstr "Number of days allotted to complete task (enter 0 for no due date):"
 
-#: form.py:34
+#: forms.py:34
 msgid "重新创建任务之前延迟的天数（输入 0 表示没有延迟）："
 msgstr "Number of days to delay before re-creating task (enter 0 for no delay):"
 
-#: form.py:35
+#: forms.py:35
+#, fuzzy
+msgid "子任务："
+msgstr "Tasks"
+
+#: forms.py:35
+msgid "输入子任务（可选，每一行为一个子任务）"
+msgstr "Input subtasks (optional, one subtask per row)"
+
+#: forms.py:36
 msgid "标签："
 msgstr "Tags:"
 
@@ -107,7 +144,7 @@ msgstr "Tags:"
 msgid "关于 - Habitica 工具集"
 msgstr "About - Habitica ToolBox"
 
-#: templates/about.html:10 templates/base.html:19
+#: templates/about.html:10 templates/base.html:21
 msgid "关于"
 msgstr "About"
 
@@ -119,23 +156,52 @@ msgstr "Hello, I'm Jack Wang, this is my "
 msgid "个人主页"
 msgstr "Personal Page"
 
-#: templates/about.html:16
-msgid "此项目基于此"
+#: templates/about.html:14
+msgid "此网站托管于腾讯云Serverless，了解此项目的更多信息请点击"
+msgstr ""
+"This website is hosted on Tencent Cloud Serverless. For more information "
+"about this project, please click"
+
+#: templates/about.html:17
+msgid "此网站基于此"
 msgstr "This website is based on this"
 
-#: templates/about.html:16
+#: templates/about.html:17
 msgid "开源项目"
 msgstr "OpenSource Project."
 
-#: templates/about.html:16
+#: templates/about.html:17
 msgid "开发。"
 msgstr " "
 
+#: templates/about.html:19
+msgid "如发现网站存在漏洞请点击"
+msgstr "If you find a vulnerability in the website please click "
+
+#: templates/about.html:19
+msgid "此处"
+msgstr "here"
+
 #: templates/about.html:20
+msgid "进行反馈"
+msgstr "to feedback"
+
+#: templates/about.html:22
+msgid "免责声明："
+msgstr "Disclaimers: "
+
+#: templates/about.html:23
+msgid "本网站与Habitica官方无关，只是利用了Habitica的公开API，若网站的侵犯了你的权益，请及时告知。"
+msgstr ""
+"This site has nothing to do with the official Habitica, but only uses the"
+" public API of Habitica, if the site's infringement of your rights, "
+"please inform promptly."
+
+#: templates/about.html:25
 msgid "隐私说明："
 msgstr "Privacy info: "
 
-#: templates/about.html:20
+#: templates/about.html:25
 msgid ""
 "此网站不会保存您的密码，您的 API token 会被加密存储，除了直接与 Habitica "
 "共享外，您的信息不会与任何第三方共享。使用此工具将生成\n"
@@ -145,27 +211,27 @@ msgstr ""
 "stored. Your info will not be shared from this site, other than with "
 "Habitica directly. Use of this tool will generate cookies."
 
-#: templates/base.html:9 templates/dashboard.html:5 templates/index.html:22
+#: templates/base.html:10 templates/dashboard.html:8 templates/index.html:23
 msgid "Habitica 工具集"
 msgstr "Habitica ToolBox"
 
-#: templates/base.html:17
+#: templates/base.html:18
 msgid "首页"
 msgstr "Home"
 
-#: templates/base.html:18 templates/changelog.html:9
+#: templates/base.html:20 templates/changelog.html:8
 msgid "更新日志"
 msgstr "Changelog"
 
-#: templates/base.html:21
+#: templates/base.html:23
 msgid "赞助"
 msgstr "Donate"
 
-#: templates/base.html:42 templates/settings.html:9
+#: templates/base.html:44 templates/settings.html:9
 msgid "设置"
 msgstr "Settings"
 
-#: templates/base.html:43
+#: templates/base.html:48
 msgid "退出登录"
 msgstr "Logout"
 
@@ -181,67 +247,67 @@ msgstr "New Task - Habitica ToolBox"
 msgid "新建定期任务"
 msgstr "New Re-To-Do Task"
 
-#: templates/create_task.html:25 templates/dashboard.html:26
+#: templates/create_task.html:26 templates/dashboard.html:29
 msgid "取消"
 msgstr "Cancel"
 
-#: templates/create_task.html:31
+#: templates/create_task.html:32
 msgid "提示："
 msgstr "Tips"
 
-#: templates/dashboard.html:14
+#: templates/dashboard.html:17
 msgid "删除任务"
 msgstr "Delete Task"
 
-#: templates/dashboard.html:21
+#: templates/dashboard.html:24
 msgid "你确定要删除任务"
 msgstr "Are you sure to delete task "
 
-#: templates/dashboard.html:23
+#: templates/dashboard.html:26
 msgid "吗？"
 msgstr " ?"
 
-#: templates/dashboard.html:28
+#: templates/dashboard.html:31
 msgid "确定"
 msgstr "Confirm"
 
-#: templates/dashboard.html:35
+#: templates/dashboard.html:38
 msgid "添加"
 msgstr "Add"
 
-#: templates/dashboard.html:41
+#: templates/dashboard.html:44
 msgid "任务"
 msgstr "Tasks"
 
-#: templates/dashboard.html:42
+#: templates/dashboard.html:45
 msgid "时长 (天)"
 msgstr "Days"
 
-#: templates/dashboard.html:43
+#: templates/dashboard.html:46
 msgid "延迟 (天)"
 msgstr "Delays"
 
-#: templates/dashboard.html:44
+#: templates/dashboard.html:47
 msgid "难度"
 msgstr "Difficulty"
 
-#: templates/dashboard.html:45 templates/dashboard.html:56
+#: templates/dashboard.html:48 templates/dashboard.html:59
 msgid "编辑"
 msgstr "Edit"
 
-#: templates/dashboard.html:46 templates/dashboard.html:58
+#: templates/dashboard.html:49 templates/dashboard.html:61
 msgid "删除"
 msgstr "Del"
 
-#: templates/dashboard.html:66
+#: templates/dashboard.html:69
 msgid "当前还没有创建过定期任务"
 msgstr "No Tasks yet, Click Add to add a new Task"
 
-#: templates/index.html:29
+#: templates/index.html:30
 msgid "记住我"
 msgstr "Remember me"
 
-#: templates/index.html:32
+#: templates/index.html:33 templates/index.html:35
 msgid "登录"
 msgstr "Log In"
 

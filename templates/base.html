@@ -5,6 +5,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
     {% block head %}
         <title>{{ _("Habitica 工具集") }}</title>
     {% endblock %}
@@ -15,7 +16,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-fixed-top" id="nav">
     <div class="navbar-nav mr-auto">
         {{ render_nav_item('dashboard', _("首页")) }}
-        {{ render_nav_item('index', _('数据面板')) }}
+        {#        {{ render_nav_item('index', _('数据面板')) }}#}
         {{ render_nav_item('changelog', _('更新日志')) }}
         {{ render_nav_item('about', _('关于')) }}
         <li class="nav-item">
@@ -48,9 +49,20 @@
         </div>
     </div>
 </nav>
-
 <main class="container" id="main">
     <br/>
+    {% if notices %}
+        {% for notice in notices %}
+            <div class="alert alert-{{ notice.TYPES[notice.type] }} alert-dismissible fade show" role="alert">
+                <a><span
+                        class="badge badge-{{ notice.TYPES[notice.type] }}">{{ notice.type }}</span> {{ notice.content }}
+                </a>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
     {{ render_messages(container=False, dismissible=True) }}
     {% block content %}{% endblock %}
 </main>
