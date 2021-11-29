@@ -146,6 +146,7 @@ def create_task():
                     task.checklist = form.checklist.data
                     db.session.add(task)
                     db.session.commit()
+                    flash(_('任务创建成功'))
                     return redirect(url_for('dashboard'))
                 else:
                     flash('发生未知错误导致创建任务失败，请反馈')
@@ -200,6 +201,7 @@ def edit_task():
                 task.tags = Tag.query.filter(Tag.id.in_(tags)).all()
                 if tdo_data.edit_task(current_user, task, tags):
                     db.session.commit()
+                    flash(_('任务修改成功'))
                     return redirect(url_for('dashboard'))
                 else:
                     flash(_('发生未知错误导致修改任务失败，请反馈'))
@@ -225,6 +227,7 @@ def delete_task():
         else:
             db.session.delete(task)
             db.session.commit()
+            flash(_('任务删除成功'))
             return redirect(url_for('dashboard'))
     else:
         flash(_('登录过期，请重新登录'))

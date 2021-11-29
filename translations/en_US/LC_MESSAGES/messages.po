@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-11-29 18:12+0800\n"
+"POT-Creation-Date: 2021-11-29 21:26+0800\n"
 "PO-Revision-Date: 2021-11-28 10:14+0800\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en_US\n"
@@ -18,42 +18,59 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
 
-#: app.py:51
+#: app.py:54
 msgid "系统维护中"
 msgstr "System maintenance in progress"
 
-#: app.py:73
+#: app.py:76
 msgid "登录失败，请检查 User ID 或者 API token 是否错误"
 msgstr "Login failed, Please check the User ID and API Token"
 
-#: app.py:87
+#: app.py:90
 msgid "登录失败，请检查登录邮箱或者密码是否错误"
 msgstr "Login failed, Please check the Email and Password"
 
-#: app.py:90
+#: app.py:93
 msgid "登录失败，你输入的账号不符合邮箱或User ID的任何一种"
 msgstr "Login failed, Your input is not Email nor User ID"
 
-#: app.py:103 app.py:146 app.py:197 app.py:216 app.py:227 app.py:250 app.py:261
-#: app.py:274
+#: app.py:106 app.py:157 app.py:212 app.py:233 app.py:245 app.py:269 app.py:281
+#: app.py:294
 msgid "登录过期，请重新登录"
 msgstr "Login Expired"
 
-#: app.py:123
+#: app.py:126
 msgid "警告：检测到非法请求！"
 msgstr "Warning：Illegal request detected!"
 
-#: app.py:164 app.py:209
+#: app.py:149
+msgid "任务创建成功"
+msgstr "Mission created successfully"
+
+#: app.py:176 app.py:225
 msgid "警告：你没有对他人任务进行修改的权限！多次尝试可能会被禁止登陆"
 msgstr ""
 "Warning: You do not have permission to make changes to other people's "
 "tasks! Multiple attempts may result in a ban"
 
-#: app.py:192
+#: app.py:183
+#, fuzzy
+msgid "输入子任务（可选，每一行为一个子任务）（不会立即生效，只会修改下一次任务的子任务）"
+msgstr "Input subtasks (optional, one subtask per row)"
+
+#: app.py:204
+msgid "任务修改成功"
+msgstr "Task modification successful"
+
+#: app.py:207
 msgid "发生未知错误导致修改任务失败，请反馈"
 msgstr ""
 "An unknown error occurred that caused the modification task to fail, "
 "please feedback"
+
+#: app.py:230
+msgid "任务删除成功"
+msgstr "Task deleted successfully"
 
 #: forms.py:12
 msgid "邮箱"
@@ -79,64 +96,64 @@ msgstr "Password or API Token is empty"
 msgid "密码 或 API Token"
 msgstr "Password or API Token"
 
-#: forms.py:16 forms.py:37
+#: forms.py:16 forms.py:35
 msgid "提交"
 msgstr "Submit"
 
-#: forms.py:28
+#: forms.py:26
 msgid "琐事"
 msgstr "Trivial"
 
-#: forms.py:28
+#: forms.py:26
 msgid "简单"
 msgstr "Easy"
 
-#: forms.py:28
+#: forms.py:26
 msgid "中等"
 msgstr "Medium"
 
-#: forms.py:28
+#: forms.py:26
 msgid "困难"
 msgstr "Hard"
 
-#: forms.py:29
+#: forms.py:27
 msgid "*任务名称："
 msgstr "*Task Name:"
 
-#: forms.py:30
+#: forms.py:28
 msgid "输入任务名称"
 msgstr "Task Name"
 
-#: forms.py:31
+#: forms.py:29
 msgid "备注："
 msgstr "Notes:"
 
-#: forms.py:31
+#: forms.py:29
 msgid "输入备注（可选，支持markdown语法）"
 msgstr "Notes (Optional)"
 
-#: forms.py:32
+#: forms.py:30
 msgid "难度："
 msgstr "Difficulty"
 
-#: forms.py:33
+#: forms.py:31
 msgid "分配完成任务的天数（输入 0 表示没有截止日期）："
 msgstr "Number of days allotted to complete task (enter 0 for no due date):"
 
-#: forms.py:34
+#: forms.py:32
 msgid "重新创建任务之前延迟的天数（输入 0 表示没有延迟）："
 msgstr "Number of days to delay before re-creating task (enter 0 for no delay):"
 
-#: forms.py:35
+#: forms.py:33
 #, fuzzy
 msgid "子任务："
 msgstr "Tasks"
 
-#: forms.py:35
+#: forms.py:33
 msgid "输入子任务（可选，每一行为一个子任务）"
 msgstr "Input subtasks (optional, one subtask per row)"
 
-#: forms.py:36
+#: forms.py:34
 msgid "标签："
 msgstr "Tags:"
 
