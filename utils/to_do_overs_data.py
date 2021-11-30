@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 import requests
 
 from extensions import db
-from models import User, Tag
+from models import User, Tag, Task
 from .cipher_functions import encrypt_text, decrypt_text, CIPHER_FILE
 
 
@@ -45,7 +45,7 @@ class ToDoOversData(object):
         self.api_token = ''
         self.logged_in = False
         self.tags = []
-
+        self.tasks = []
         self.task_name = ''
         self.task_days = 0
         self.task_delay = 0
@@ -267,3 +267,53 @@ class ToDoOversData(object):
                 return req_json['data']
             return False
         return False
+
+    def load_user_tasks(self, user_id, api_token):
+        """Get the list of a user's tasks.
+
+        Returns:
+            Dict of tags for success, False for failure.
+        """
+        headers = {
+            'x-api-user': user_id.encode('utf-8'),
+            'x-api-key': decrypt_text(
+                api_token,
+                CIPHER_FILE,
+            )
+        }
+
+        req = requests.get(
+            'https://habitica.com/api/v3/tasks/user?type=todos',
+            headers=headers,
+            data={}
+        )
+        self.return_code = req.status_code
+        req_json = req.json()
+        if self.return_code == 200:
+            if req_json['data']:
+                for task_json in req_json['data']:
+                    task = Task.query.get(task_json['_id'])
+                    tags = Tag.query.filter(Tag.id.in_(task_json['tags'])).all()
+                    if task is None:
+                        task = Task(
+                            id=task_json['_id'],
+                            name=task_json['text'],
+                            notes=task_json['notes'],
+                            tags=tags,
+                            priority=str(task_json['priority']),
+                            owner=task_json['userId'],
+                            official=True
+                        )
+                        db.session.add(task)
+                        db.session.commit()
+                    elif task.official:
+                        task.name = task_json['text']
+                        task.notes = task_json['notes']
+                        task.tags = tags
+                        task.priority = str(task_json['priority'])
+                        db.session.commit()
+                return True
+            else:
+                return False
+        else:
+            return False

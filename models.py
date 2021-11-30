@@ -134,7 +134,7 @@ class Tag(db.Model):
 
 
 class Task(db.Model):
-    PRIORITY_CHOICES = {'0.1': '琐事', '1.0': '简单', '1.5': '中等', '2.0': '困难'}
+    PRIORITY_CHOICES = {'0.1': '琐事', '1': '简单', '1.5': '中等', '2': '困难'}
 
     id = db.Column(db.String(255), primary_key=True)
     name = db.Column(db.String(255))
@@ -145,6 +145,7 @@ class Task(db.Model):
     owner = db.Column(db.String(255), db.ForeignKey('user.id'))
     tags = db.relationship('Tag', backref="tasks", secondary=task_tag)
     checklist = db.Column(db.Text())
+    official = db.Column(db.Boolean, default=False)
 
     def get_priority_display(self):
         return _(self.PRIORITY_CHOICES[self.priority])

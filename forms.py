@@ -23,11 +23,11 @@ class MultiCheckboxField(SelectMultipleField):
 
 
 class TasksModelForm(FlaskForm):
-    choices = [('0.1', _l('琐事')), ('1.0', _l('简单')), ('1.5', _l('中等')), ('2.0', _l('困难'))]
+    choices = [('0.1', _l('琐事')), ('1', _l('简单')), ('1.5', _l('中等')), ('2', _l('困难'))]
     name = StringField(_l('*任务名称：'), validators=[DataRequired(message=u"任务名称不能为空")],
                        render_kw={'placeholder': _l('输入任务名称')})
     notes = TextAreaField(_l(u'备注：'), render_kw={'placeholder': _l(u'输入备注（可选，支持markdown语法）')})
-    priority = SelectField(_l(u'难度：'), choices=choices, default='1.0')
+    priority = SelectField(_l(u'难度：'), choices=choices, default='1')
     days = IntegerField(_l('分配完成任务的天数（输入 0 表示没有截止日期）：'), validators=[InputRequired(), NumberRange(min=0)], default=0)
     delay = IntegerField(_l('重新创建任务之前延迟的天数（输入 0 表示没有延迟）：'), validators=[InputRequired(), NumberRange(min=0)], default=0)
     checklist = TextAreaField(_l(u'子任务：'), render_kw={'placeholder': _l(u'输入子任务（可选，每一行为一个子任务）')})

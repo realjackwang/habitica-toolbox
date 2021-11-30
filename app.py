@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, abo
 from flask_admin.helpers import is_safe_url
 from flask_babel import gettext as _
 from flask_login import login_user, login_required, current_user, logout_user
+from sqlalchemy import and_
 
 from config import config
 from decorators import permission_required, no_maintenance_required
@@ -99,9 +100,12 @@ def login():
 @no_maintenance_required
 def dashboard():
     if current_user.is_authenticated:
-        tasks = Task.query.filter(Task.owner == current_user.id).all()
+        tdo_data = ToDoOversData()
+        tdo_data.load_user_tasks(current_user.id, current_user.api_token)
+        toolbox_tasks = Task.query.filter(and_(Task.owner == current_user.id, Task.official == False)).all()
+        habitica_tasks = Task.query.filter(and_(Task.owner == current_user.id, Task.official)).all()
         notices = Notice.query.filter_by(pages='dashboard', expired=False)
-        return render_template('dashboard.html', tasks=tasks, notices=notices)
+        return render_template('dashboard.html', tasks=[toolbox_tasks, habitica_tasks], notices=notices)
     else:
         flash(_('登录过期，请重新登录'))
         return redirect(url_for("index"))
@@ -180,7 +184,7 @@ def edit_task():
             form.name.data = task.name
             form.notes.data = task.notes
             form.checklist.data = task.checklist
-            form.checklist.render_kw = {'placeholder': _('输入子任务（可选，每一行为一个子任务）（不会立即生效，只会修改下一次任务的子任务）')}
+            form.checklist.label.text = _(u'子任务：（不会立即生效，只会修改下一次任务的子任务）')
             form.days.data = task.days
             form.delay.data = task.delay
             form.priority.data = task.priority

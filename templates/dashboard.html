@@ -6,7 +6,7 @@
 
 
     <p class="h1 text-center">{{ _("Habitica 工具集") }}</p>
-    <br/><br/>
+    <br/>
 
 
     <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1"
@@ -35,41 +35,96 @@
         </div>
     </div>
 
-    <a class="btn btn-primary" href="{{ url_for('create_task') }}" role="button">{{ _("添加") }}</a>
-    <br/><br/>
-    {% if tasks %}
-        <table class="table table-hover">
-            <thead>
-            <tr>
-                <th>{{ _("任务") }}</th>
-                <th>{{ _("时长 (天)") }}</th>
-                <th>{{ _("延迟 (天)") }}</th>
-                <th>{{ _("难度") }}</th>
-                <th>{{ _("编辑") }}</th>
-                <th>{{ _("删除") }}</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for task in tasks %}
-                <tr>
-                    <td>{{ task.name }}</td>
-                    <td>{{ task.days }}</td>
-                    <td>{{ task.delay }}</td>
-                    <td>{{ task.get_priority_display() }}</td>
-                    <td><a href="{{ url_for('edit_task',id=task.id) }}">{{ _("编辑") }}</a></td>
-                    <td><a data-name="{{ task.name }}" data-id="{{ task.id }}" href="" data-toggle="modal"
-                           data-target="#staticBackdrop">{{ _("删除") }}</a>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+               aria-selected="true">Toolbox</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile"
+               aria-selected="false">Habitica</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
         <br/>
-    {% else %}
-        {{ _("当前还没有创建过定期任务") }}
-        <br/>
-        <br/>
-    {% endif %}
+            <a class="btn btn-primary" href="{{ url_for('create_task') }}" role="button">{{ _("添加") }}</a>
+            <br/><br/>
+            {% if tasks[0] %}
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>{{ _("任务") }}</th>
+                        <th>{{ _("时长 (天)") }}</th>
+                        <th>{{ _("延迟 (天)") }}</th>
+                        <th>{{ _("难度") }}</th>
+                        <th>{{ _("编辑") }}</th>
+                        <th>{{ _("删除") }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for task in tasks[0] %}
+                        <tr>
+                            <td>{{ task.name }}</td>
+                            <td>{{ task.days }}</td>
+                            <td>{{ task.delay }}</td>
+                            <td>{{ task.get_priority_display() }}</td>
+                            <td><a href="{{ url_for('edit_task',id=task.id) }}">{{ _("编辑") }}</a></td>
+                            <td><a data-name="{{ task.name }}" data-id="{{ task.id }}" href="" data-toggle="modal"
+                                   data-target="#staticBackdrop">{{ _("删除") }}</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <br/>
+            {% else %}
+                {{ _("当前还没有创建过定期任务") }}
+                <br/>
+                <br/>
+            {% endif %}
+        </div>
+        <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                   <br/>
+            <a class="btn btn-primary" href="{{ url_for('create_task') }}" role="button">{{ _("添加") }}</a>
+            <br/><br/>
+            {% if tasks[1] %}
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>{{ _("任务") }}</th>
+                        <th>{{ _("时长 (天)") }}</th>
+                        <th>{{ _("延迟 (天)") }}</th>
+                        <th>{{ _("难度") }}</th>
+                        <th>{{ _("编辑") }}</th>
+                        <th>{{ _("删除") }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for task in tasks[1] %}
+                        <tr>
+                            <td>{{ task.name }}</td>
+                            <td>{{ task.days }}</td>
+                            <td>{{ task.delay }}</td>
+                            <td>{{ task.get_priority_display() }}</td>
+                            <td><a href="{{ url_for('edit_task',id=task.id) }}">{{ _("编辑") }}</a></td>
+                            <td><a data-name="{{ task.name }}" data-id="{{ task.id }}" href="" data-toggle="modal"
+                                   data-target="#staticBackdrop">{{ _("删除") }}</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <br/>
+            {% else %}
+                {{ _("当前还没有创建过定期任务") }}
+                <br/>
+                <br/>
+            {% endif %}
+        </div>
+    </div>
+
+
 
 
 {% endblock %}
