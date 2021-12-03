@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ _("番茄钟 - Habitica 工具集") }}</title>
+</head>
+
+{% block content %}
+    <br/>
+    <p class="h1 text-center">{{ _("番茄钟") }}</p>
+    <br/><br/>
+    <div class="timer">
+        <p class="h1 text-center" id="time">25 : 00</p>
+    </div>
+    <br/>
+    <div class="d-flex justify-content-center" role="group" aria-label="Basic example">
+        {% if num %}
+            <a type="button" class="btn btn-secondary" href="{{ url_for("pomodoro") }}" id="btn_cancel">取消</a>
+        {% else %}
+            <a type="button" class="btn btn-secondary" href="{{ url_for("pomodoro",num=25*60) }}">开始</a>
+        {% endif %}
+    </div>
+{% endblock %}
+.
+
+{% block script %}
+    <script src="{{ url_for('static', filename='js/timer.js') }}"></script>
+    <script>
+        var Seconds = {{ num }};
+    </script>
+{% endblock %}

@@ -238,6 +238,22 @@ def delete_task():
         return redirect(url_for("index"))
 
 
+@app.route('/pomodoro', methods=['GET'])
+@login_required
+@no_maintenance_required
+def pomodoro():
+    if current_user.is_authenticated:
+        notices = Notice.query.filter_by(pages='pomodoro', expired=False)
+        if request.args.get('num'):
+            return render_template('pomodoro.html', notices=notices, num=int(request.args.get('num')))
+        if request.args.get('rest'):
+            return render_template('pomodoro.html', notices=notices, num=300)
+        return render_template('pomodoro.html', notices=notices)
+    else:
+        flash(_('登录过期，请重新登录'))
+        return redirect(url_for("index"))
+
+
 @app.route('/about', methods=['GET'])
 @login_required
 @no_maintenance_required
